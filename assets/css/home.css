@@ -12,6 +12,7 @@
 
 .svg-icon {
 	width: 1.5rem;
+	cursor: pointer;
 }
 
 #main-container {
@@ -74,4 +75,8 @@
 .anime-box #genre-list {
 	display: flex;
 	gap: 1rem;
+}
+
+.bookmarked path {
+	fill: black;
 }

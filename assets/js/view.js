@@ -9,6 +9,7 @@ const anime_info_container = document.querySelector('#content');
 export const search_bar = document.querySelector('#searchBar');
 const search_bar_button = document.querySelector('#search-button');
 
+let bookmarked = [];
 
 async function render_pagination(anime_list, page_num) {
 	card.innerHTML = ""
@@ -74,6 +75,7 @@ function render_anime(anime){
 	html.then((html_data) => {
 		html = html_data.html.trim();
 		anime_info_container.insertAdjacentHTML('beforeend', html);
+		bookmark_element();
 	})
 };
 
@@ -89,9 +91,26 @@ function render_last_viewed_anime() {
 	}
 }
 
+function bookmark_element() {
+	const bookmark_button = document.querySelectorAll('.bookmark-icon');
+	bookmark_button[0].addEventListener('click', (event) => {
+		if (bookmark_button[0].classList.toggle('bookmarked')) {
+			let last_anime = JSON.parse(localStorage.getItem("last_anime"));
+			bookmarked.push(JSON.stringify(last_anime));
+			localStorage.setItem('bookmark', bookmarked);
+		} else {
+			let last_anime = JSON.parse(localStorage.getItem("last_anime"));
+			bookmarked.pop(last_anime);
+			localStorage.setItem('bookmark', bookmarked);
+		}
+	})
+}
+
 if (localStorage.getItem('last_anime')) {
 	render_last_viewed_anime();
 }
+
+
 
 search_bar_button.addEventListener('click', (e) => {
 	let query = search_bar.value;
@@ -102,6 +121,7 @@ search_bar_button.addEventListener('click', (e) => {
 
 		// Event Propagation -> switches page numbers
 		document.getElementById('page-numbers').addEventListener('click', function (e) {
+		page-numbers.innerHTML == "";
 		if (e.target.classList.contains('p-num')) {
 			const value = e.target.textContent;
 			render_pagination(search_result_data, value);
@@ -109,6 +129,7 @@ search_bar_button.addEventListener('click', (e) => {
 
 		render_anime_hash(search_result_data);
 		render_anime_list(search_result_data);
+		bookmark_element();
 	});
 });
 

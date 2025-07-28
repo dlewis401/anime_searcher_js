@@ -19,7 +19,8 @@ export async function fetched_anime(search_term) {
 // Calculates number of pages
 export async function pagination(anime_list) {
 	const length = anime_list.length;
-
+	page_numbers_container.innerHTML = ""
+	
 	if (length > 5) {
 		const page_numbers = Math.ceil(length / 5);
 		for (let i = 0; i !== page_numbers; i++) {
