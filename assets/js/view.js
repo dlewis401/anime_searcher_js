@@ -1,10 +1,13 @@
 import {fetched_anime} from './model.js';
 import {pagination} from './model.js';
 import {gather_anime_data_for_display} from './model.js';
+import {search} from './model.js';
 
 const card = document.querySelector('#card-anime-collection');
 export const page_numbers_container = document.querySelector('#page-numbers');
 const anime_info_container = document.querySelector('#content');
+export const search_bar = document.querySelector('#searchBar');
+const search_bar_button = document.querySelector('#search-button');
 
 
 async function render_pagination(anime_list, page_num) {
@@ -60,23 +63,11 @@ function render_anime_list(data) {
 		let hash = Number(window.location.hash.trim().split('#')[1]);
 		let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
 		render_anime(matched);
+		localStorage.setItem('last_anime', JSON.stringify(matched));
 	});
 	
 	return matched;
 };
-
-function if_hash_exists_on_page() {
-	window.addEventListener('DOMContentLoaded', () => {
-		if (window.location.hash) {
-			let data = fetched_anime("japan");
-			data.then((anime_result) => {
-				let hash = Number(window.location.hash.trim().split('#')[1]);
-				let matched = anime_result.find((individual_anime) => hash === individual_anime.mal_id);
-				render_anime(matched);
-			});
-		}
-	})
-}
 
 function render_anime(anime){
 	let html = gather_anime_data_for_display(anime);
@@ -84,22 +75,41 @@ function render_anime(anime){
 		html = html_data.html.trim();
 		anime_info_container.insertAdjacentHTML('beforeend', html);
 	})
+};
+
+function render_last_viewed_anime() {
+	let hash = Number(window.location.hash.trim().split('#')[1]);
+	if (localStorage.getItem("last_anime")) {
+		let last_anime = JSON.parse(localStorage.getItem("last_anime"));
+		window.location.hash = last_anime.mal_id;
+		render_anime(last_anime);
+	} else {
+		localStorage.clear();
+		return "";
+	}
 }
 
-// Fetches anime list and then if promise is resolved, generate pagination
-if_hash_exists_on_page();
+if (localStorage.getItem('last_anime')) {
+	render_last_viewed_anime();
+}
 
-const result = fetched_anime("japan").then((result) => {
-	pagination(result);
-	render_pagination(result, 1);
+search_bar_button.addEventListener('click', (e) => {
+	let query = search_bar.value;
+	const search_result = search(query).then((search_data) => {
+		let search_result_data = search_data.result.fetch_anime_data.data;
+		pagination(search_result_data);
+		render_pagination(search_result_data, 1);
 
-	// Event Propagation -> switches page numbers
-	document.getElementById('page-numbers').addEventListener('click', function (e) {
-	if (e.target.classList.contains('p-num')) {
-		const value = e.target.textContent;
-		render_pagination(result, value);
-	}});
+		// Event Propagation -> switches page numbers
+		document.getElementById('page-numbers').addEventListener('click', function (e) {
+		if (e.target.classList.contains('p-num')) {
+			const value = e.target.textContent;
+			render_pagination(search_result_data, value);
+		}});
 
-	render_anime_hash(result);
-	render_anime_list(result);
+		render_anime_hash(search_result_data);
+		render_anime_list(search_result_data);
+	});
 });
+
+

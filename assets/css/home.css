@@ -30,6 +30,7 @@
 	align-items: center;
 	background-color: #FFFFF3;
 	padding: 0.2rem;
+	cursor: pointer;
 }
 
 #search-bar, #search-button {

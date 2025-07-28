@@ -7,3 +7,6 @@ Features:
 - LocalStorage API
 - AJAX Calls using Jikan API
 - DOM Manipulation
+- Event Propagation
+- Array Methods (e.g., find)
+- Modules
