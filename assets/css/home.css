@@ -1,0 +1,76 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.anime-search-container {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	padding: 1rem;
+}
+
+.svg-icon {
+	width: 1.5rem;
+}
+
+#main-container {
+	display: flex;
+	gap: 4rem;
+	background-color: #E0E3DA;
+	width: 100%;
+	height: auto;
+	align-items: center;
+	grid-column: 1 / -1;
+	padding: 1rem;
+	justify-content: center;
+}
+
+#search-button {
+	align-items: center;
+	background-color: #FFFFF3;
+	padding: 0.2rem;
+}
+
+#search-bar, #search-button {
+	display: flex;
+	gap: 0.5rem;
+}
+
+#sidebar, #content {
+	padding: 1rem;
+}
+
+.card {
+	width: 100%;
+	height: auto;
+	background-color: #E0E3DA;
+	margin-bottom: 1rem;
+	padding: 1rem;
+}
+
+.card:hover {
+	background-color: #A593E0;
+	cursor: pointer;
+}
+
+#page-numbers {
+	display: flex;
+	gap: 1rem;
+}
+
+#page-numbers .p-num:hover {
+	color: #A593E0;
+	cursor: pointer;
+}
+
+.anime-box {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.anime-box #genre-list {
+	display: flex;
+	gap: 1rem;
+}
