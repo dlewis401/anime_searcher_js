@@ -1,3 +1,5 @@
+// View: only touches the DOM — rendering and listening.
+
 import {fetched_anime} from './model.js';
 import {pagination} from './model.js';
 import {gather_anime_data_for_display} from './model.js';
@@ -8,8 +10,10 @@ export const page_numbers_container = document.querySelector('#page-numbers');
 const anime_info_container = document.querySelector('#content');
 export const search_bar = document.querySelector('#searchBar');
 const search_bar_button = document.querySelector('#search-button');
+const card_container = document.querySelector('#card-anime-collection');
 
-let bookmarked = [];
+let bookmarked_anime = JSON.parse(localStorage.getItem('bookmarked_anime')) || [];
+
 
 async function render_pagination(anime_list, page_num) {
 	card.innerHTML = ""
@@ -33,50 +37,42 @@ async function render_pagination(anime_list, page_num) {
 }
 
 function render_anime_hash(data) {
-	card.addEventListener('click', function(e) {
-		const cardElement = e.target.closest('.card');
-		if (!cardElement) return; 
-		const nameElement = cardElement.querySelector('.name');
-		if (nameElement) {
-			const id = data.findIndex((el) => {
-				if (el.title === nameElement.textContent.trim()) {
-					let anime_id = el.mal_id;
-					window.location.hash = anime_id;
-				}
-			});
-		}
-	});
-}
-
-function render_anime_list(data) {
-	if (!window.location.hash) {
-		anime_info_container.insertAdjacentHTML('beforeend', "<p>There is no anime right now</p>")
-		return null;
-	};
-	
-	// Removes # from window URL to get the anime ID
-	let hash = Number(window.location.hash.trim().split('#')[1]);
-	let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
-
-	window.addEventListener("hashchange", (event) => {
-		anime_info_container.innerHTML = "";
-		// Removes # from window URL to get the anime ID
-		let hash = Number(window.location.hash.trim().split('#')[1]);
-		let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
-		render_anime(matched);
-		localStorage.setItem('last_anime', JSON.stringify(matched));
-	});
-	
-	return matched;
+	window.location.hash = data.mal_id;
 };
+
 
 function render_anime(anime){
 	let html = gather_anime_data_for_display(anime);
 	html.then((html_data) => {
 		html = html_data.html.trim();
 		anime_info_container.insertAdjacentHTML('beforeend', html);
-		bookmark_element();
-	})
+		check_bookmark();
+		bookmark_manager(check_bookmark());
+	});
+};
+
+
+function render_anime_list(data) {
+	if (!window.location.hash) {
+		anime_info_container.insertAdjacentHTML('beforeend', "<p>There is no anime right now</p>");
+		return null;
+	} else {
+		// Removes # from window URL to get the anime ID
+		let hash = Number(window.location.hash.trim().split('#')[1]);
+		let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
+	
+		window.addEventListener("hashchange", (event) => {
+			anime_info_container.innerHTML = "";
+			// Removes # from window URL to get the anime ID
+			let hash = Number(window.location.hash.trim().split('#')[1]);
+			let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
+			render_anime(matched);
+			localStorage.setItem('last_anime', JSON.stringify(matched));
+		});
+		
+		return matched;
+	}
+	
 };
 
 function render_last_viewed_anime() {
@@ -91,26 +87,79 @@ function render_last_viewed_anime() {
 	}
 }
 
-function bookmark_element() {
-	const bookmark_button = document.querySelectorAll('.bookmark-icon');
-	bookmark_button[0].addEventListener('click', (event) => {
-		if (bookmark_button[0].classList.toggle('bookmarked')) {
-			let last_anime = JSON.parse(localStorage.getItem("last_anime"));
-			bookmarked.push(JSON.stringify(last_anime));
-			localStorage.setItem('bookmark', bookmarked);
+async function fetch_anime_with_id(hash) {
+	const anime_from_hash = await fetch(`https://api.jikan.moe/v4/anime/${hash}/full`);
+	const anime_result = await anime_from_hash.json();
+	const anime_result_data = anime_result.data;
+	return anime_result_data
+}
+
+function add_bookmark_anime(hash, bookmark_icon) {
+	if (bookmarked_anime.length > 0) {
+		if (localStorage.getItem('bookmarked_anime')) {
+			if (bookmarked_anime.includes(hash)) {
+				return true;
+			} else {
+				bookmarked_anime.push(hash);
+				bookmark_icon.classList.toggle('bookmarked') || "";
+				localStorage.setItem('bookmarked_anime', JSON.stringify(bookmarked_anime));
+			}
+	}
 		} else {
-			let last_anime = JSON.parse(localStorage.getItem("last_anime"));
-			bookmarked.pop(last_anime);
-			localStorage.setItem('bookmark', bookmarked);
+		bookmarked_anime.push(hash);
+		bookmark_icon.classList.toggle('bookmarked') || "";
+		localStorage.setItem('bookmarked_anime', JSON.stringify(bookmarked_anime));
+	}
+}
+
+function remove_bookmark_anime(hash, bookmark_icon) {
+	for (let i = bookmarked_anime.length - 1; i >= 0; i--) {
+		if (bookmarked_anime[i] === hash) {
+			bookmarked_anime.splice(i, 1);
 		}
-	})
+	}
+
+	localStorage.setItem('bookmarked_anime', JSON.stringify(bookmarked_anime));
+
+	bookmark_icon.classList.toggle('bookmarked') || "";
+
+	return bookmarked_anime;
+}
+
+function check_bookmark() {
+	let hash = Number(window.location.hash.trim().split('#')[1]);
+	let bookmarked_anime = JSON.parse(localStorage.getItem('bookmarked_anime')) || [];
+
+	if (bookmarked_anime) {
+		if (bookmarked_anime.includes(hash)) {
+			const bookmark_icon = anime_info_container.querySelector('.bookmark-icon');
+			if (bookmark_icon) {
+				bookmark_icon.classList.add('bookmarked');
+				return true;
+			}
+		}
+	} else {
+	}
+	return false;
+}
+
+function bookmark_manager(is_it_bookmarked) {
+	const bookmark_icon = document.querySelector('.bookmark-icon');
+	let hash = Number(window.location.hash.trim().split('#')[1]);
+	bookmark_icon.addEventListener('click', (e) => {
+		if (!is_it_bookmarked) {
+			add_bookmark_anime(hash, bookmark_icon);
+			is_it_bookmarked = true;
+		} else {
+			remove_bookmark_anime(hash, bookmark_icon);
+			is_it_bookmarked = false;
+		}
+	});
 }
 
 if (localStorage.getItem('last_anime')) {
 	render_last_viewed_anime();
 }
-
-
 
 search_bar_button.addEventListener('click', (e) => {
 	let query = search_bar.value;
@@ -121,15 +170,26 @@ search_bar_button.addEventListener('click', (e) => {
 
 		// Event Propagation -> switches page numbers
 		document.getElementById('page-numbers').addEventListener('click', function (e) {
-		page-numbers.innerHTML == "";
 		if (e.target.classList.contains('p-num')) {
 			const value = e.target.textContent;
 			render_pagination(search_result_data, value);
 		}});
 
-		render_anime_hash(search_result_data);
+		// render_anime_hash(search_result_data);
 		render_anime_list(search_result_data);
-		bookmark_element();
+		
+		card_container.addEventListener('click', (e) => {
+			anime_info_container.innerHTML = ""
+			let text = e.target.closest('.card').textContent.trim();
+			text = text.replace(/\s*\b\d{4}\b\s*$/, '').trim();
+			
+			search_result_data.forEach((anime) => {
+				if (anime.title === text) {
+					render_anime_hash(anime);
+					render_anime(anime);
+				}
+			})
+		})
 	});
 });
 
