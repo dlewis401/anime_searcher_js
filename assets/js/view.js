@@ -79,13 +79,13 @@ function render_anime_list(data) {
 };
 
 function render_last_viewed_anime() {
-	if (localStorage.getItem("last_anime")) {
+	if (localStorage.getItem("last_anime") !== null || localStorage.getItem("last_anime") !== undefined) {
 		let last_anime = JSON.parse(localStorage.getItem("last_anime"));
 		window.location.hash = last_anime.mal_id;
 		render_anime(last_anime);
 	} else {
 		localStorage.clear();
-		return "";
+		window.location.reload();
 	}
 }
 
