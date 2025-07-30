@@ -79,7 +79,6 @@ function render_anime_list(data) {
 };
 
 function render_last_viewed_anime() {
-	let hash = Number(window.location.hash.trim().split('#')[1]);
 	if (localStorage.getItem("last_anime")) {
 		let last_anime = JSON.parse(localStorage.getItem("last_anime"));
 		window.location.hash = last_anime.mal_id;
@@ -153,12 +152,11 @@ function bookmark_manager(is_it_bookmarked) {
 		if (!is_it_bookmarked) {
 			add_bookmark_anime(hash, bookmark_icon);
 			is_it_bookmarked = true;
-			render_bookmark_manager();
 		} else {
 			remove_bookmark_anime(hash, bookmark_icon);
 			is_it_bookmarked = false;
-			render_bookmark_manager();
 		}
+		render_bookmark_manager();
 	});
 }
 
@@ -169,6 +167,7 @@ async function gather_anime_from_bookmark_manager() {
 		const anime_data = await fetch_anime_from_id(anime_hash);
 		render_anime_hash(anime_data);
 		render_anime(anime_data);
+		localStorage.setItem('last_anime', JSON.stringify(anime_data));
 	});
 }
 
@@ -192,7 +191,6 @@ if (localStorage.getItem('last_anime')) {
 	render_bookmark_manager();
 };
 
-gather_anime_from_bookmark_manager();
 
 search_bar_button.addEventListener('click', (e) => {
 	let query = search_bar.value;
@@ -212,7 +210,7 @@ search_bar_button.addEventListener('click', (e) => {
 		render_anime_list(search_result_data);
 		
 		card_container.addEventListener('click', (e) => {
-			anime_info_container.innerHTML = ""
+			anime_info_container.innerHTML = "";
 			let text = e.target.closest('.card').textContent.trim();
 			text = text.replace(/\s*\b\d{4}\b\s*$/, '').trim();
 			
@@ -222,6 +220,9 @@ search_bar_button.addEventListener('click', (e) => {
 					render_anime(anime);
 				}
 			})
+			gather_anime_from_bookmark_manager();
 		})
 	});
 });
+
+gather_anime_from_bookmark_manager();

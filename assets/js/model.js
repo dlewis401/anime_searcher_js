@@ -30,7 +30,6 @@ export async function pagination(anime_list) {
 		}
 	} else {
 		const page_numbers = 1;
-		console.log(page_numbers);
 	}
 }
 
@@ -65,7 +64,16 @@ export async function fetch_anime_from_id(anime_hash) {
 export async function gather_bookmark_data(anime_hash) {
 	const anime = await fetch_anime_from_id(anime_hash);
 	// Strips the synopsis to first sentence only
-	const regex_description = anime.synopsis.match(/.*?\. /)[0];
+	let regex_description = anime.synopsis || "No description available.";
+
+	if (anime.synopsis) {
+		// Try to match the first sentence (ends in '.', '!' or '?') optionally followed by space or newline
+		const match = anime.synopsis.match(/.*?[.!?](\s|$)/);
+		if (match && match[0].length > 10) {
+			regex_description = match[0];
+		}
+	}
+
 	const html = `
 	<br>
 	<div class="anime-card">
