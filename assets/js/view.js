@@ -46,6 +46,7 @@ function render_anime_hash(data) {
 function render_anime(anime){
 	anime_info_container.innerHTML = "";
 	let html = gather_anime_data_for_display(anime);
+	localStorage.setItem('last_anime', JSON.stringify(anime));
 	html.then((html_data) => {
 		html = html_data.html.trim();
 		anime_info_container.insertAdjacentHTML('beforeend', html);
@@ -70,7 +71,6 @@ function render_anime_list(data) {
 			let hash = Number(window.location.hash.trim().split('#')[1]);
 			let matched = data.find((individual_anime) => hash === individual_anime.mal_id);
 			render_anime(matched);
-			localStorage.setItem('last_anime', JSON.stringify(matched));
 		});
 		
 		return matched;
@@ -167,7 +167,6 @@ async function gather_anime_from_bookmark_manager() {
 		const anime_data = await fetch_anime_from_id(anime_hash);
 		render_anime_hash(anime_data);
 		render_anime(anime_data);
-		localStorage.setItem('last_anime', JSON.stringify(anime_data));
 	});
 }
 
