@@ -99,6 +99,7 @@ function render_last_viewed_anime() {
 async function check_hash_in_url() {
 	let url_hash = window.location.hash;
 	if (window.location.hash) {
+		localStorage.removeItem('last_anime');
 		url_hash = Number(url_hash.split('#')[1].trim());
 		const anime_data = await fetch_anime_with_id(url_hash);
 		render_anime(anime_data);
@@ -194,6 +195,9 @@ async function render_bookmark_manager() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+	check_hash_in_url();
+
+	
 	if (localStorage.getItem('last_anime')) {
 		render_last_viewed_anime();
 		render_bookmark_manager();
@@ -235,6 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 
-	check_hash_in_url();
+
 	gather_anime_from_bookmark_manager();
 });
