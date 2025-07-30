@@ -55,6 +55,27 @@ export async function gather_anime_data_for_display(anime) {
 	return {html}
 }
 
+export async function fetch_anime_from_id(anime_hash) {
+	const fetch_anime = await fetch(`https://api.jikan.moe/v4/anime/${anime_hash}/full`);
+	const anime_json = await fetch_anime.json();
+	const anime = anime_json.data;
+	return anime
+}
+
+export async function gather_bookmark_data(anime_hash) {
+	const anime = await fetch_anime_from_id(anime_hash);
+	// Strips the synopsis to first sentence only
+	const regex_description = anime.synopsis.match(/.*?\. /)[0];
+	const html = `
+	<br>
+	<div class="anime-card">
+		<p class="anime_name"><strong>${`${anime.title} (${anime.mal_id})`}</strong></p>
+		<p>${regex_description}</p>
+	</div>`
+
+	return html.trim();
+}
+
 export async function search(query) {
 	if (query !== "") {
 		const result = await fetchAnime(query);
@@ -63,3 +84,4 @@ export async function search(query) {
 		return "";
 	}
 }
+

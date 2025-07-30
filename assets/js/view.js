@@ -1,9 +1,10 @@
 // View: only touches the DOM — rendering and listening.
 
-import {fetched_anime} from './model.js';
 import {pagination} from './model.js';
 import {gather_anime_data_for_display} from './model.js';
+import {gather_bookmark_data} from './model.js';
 import {search} from './model.js';
+import {fetch_anime_from_id} from './model.js';
 
 const card = document.querySelector('#card-anime-collection');
 export const page_numbers_container = document.querySelector('#page-numbers');
@@ -11,6 +12,7 @@ const anime_info_container = document.querySelector('#content');
 export const search_bar = document.querySelector('#searchBar');
 const search_bar_button = document.querySelector('#search-button');
 const card_container = document.querySelector('#card-anime-collection');
+const anime_bookmark_container = document.querySelector('#anime-bookmark-container')
 
 let bookmarked_anime = JSON.parse(localStorage.getItem('bookmarked_anime')) || [];
 
@@ -42,6 +44,7 @@ function render_anime_hash(data) {
 
 
 function render_anime(anime){
+	anime_info_container.innerHTML = "";
 	let html = gather_anime_data_for_display(anime);
 	html.then((html_data) => {
 		html = html_data.html.trim();
@@ -150,16 +153,46 @@ function bookmark_manager(is_it_bookmarked) {
 		if (!is_it_bookmarked) {
 			add_bookmark_anime(hash, bookmark_icon);
 			is_it_bookmarked = true;
+			render_bookmark_manager();
 		} else {
 			remove_bookmark_anime(hash, bookmark_icon);
 			is_it_bookmarked = false;
+			render_bookmark_manager();
 		}
 	});
 }
 
+async function gather_anime_from_bookmark_manager() {
+	anime_bookmark_container.addEventListener('click', async (event) => {
+		// Gets anime MAL ID from bookmark string
+		const anime_hash = Number(event.target.closest('.anime-card').textContent.trim().split('(')[1].split(")")[0].trim());
+		const anime_data = await fetch_anime_from_id(anime_hash);
+		render_anime_hash(anime_data);
+		render_anime(anime_data);
+	});
+}
+
+async function render_bookmark_manager() {
+	if (!(bookmarked_anime.length === 0)) {
+		anime_bookmark_container.innerHTML = "";
+		for (const anime_hash of bookmarked_anime) {
+		const html = await gather_bookmark_data(anime_hash);
+		anime_bookmark_container.insertAdjacentHTML('beforeend', html);
+	};
+	} else {
+		anime_bookmark_container.innerHTML = "<br><p><strong>There is no anime right now!</strong> Please try and bookmark some and there will appear here!!</p>";
+	}
+};
+
+
 if (localStorage.getItem('last_anime')) {
 	render_last_viewed_anime();
-}
+	render_bookmark_manager();
+} else {
+	render_bookmark_manager();
+};
+
+gather_anime_from_bookmark_manager();
 
 search_bar_button.addEventListener('click', (e) => {
 	let query = search_bar.value;
@@ -192,5 +225,3 @@ search_bar_button.addEventListener('click', (e) => {
 		})
 	});
 });
-
-

@@ -80,3 +80,36 @@
 .bookmarked path {
 	fill: black;
 }
+
+#bookmark-wrapper {
+	position: relative;
+}
+
+
+#bookmark-wrapper:hover #bookmark-manager {
+	display: block;
+}
+
+.anime-card {
+	padding: 0.2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.anime-card:hover {
+	cursor: pointer;
+	background-color: #A593E0;
+}
+
+#bookmark-manager {
+	display: none;
+	width: 20rem;
+	height: auto;
+	padding: 0.5rem;
+	background-color: #E0E3DA;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1;
+}
