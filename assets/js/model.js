@@ -78,7 +78,7 @@ export async function gather_bookmark_data(anime_hash) {
 	<br>
 	<div class="anime-card">
 		<p class="anime_name"><strong>${`${anime.title} (${anime.mal_id})`}</strong></p>
-		<p>${regex_description}</p>
+		<p class="anime-description">${regex_description}</p>
 	</div>`
 
 	return html.trim();
