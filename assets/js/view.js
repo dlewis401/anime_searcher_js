@@ -99,9 +99,9 @@ function render_last_viewed_anime() {
 async function check_hash_in_url() {
 	let url_hash = window.location.hash;
 	if (window.location.hash) {
-		localStorage.removeItem('last_anime');
 		url_hash = Number(url_hash.split('#')[1].trim());
 		const anime_data = await fetch_anime_with_id(url_hash);
+		localStorage.removeItem('last_anime');
 		render_anime(anime_data);
 	} else {
 		return;
