@@ -12,7 +12,8 @@ const anime_info_container = document.querySelector('#content');
 export const search_bar = document.querySelector('#searchBar');
 const search_bar_button = document.querySelector('#search-button');
 const card_container = document.querySelector('#card-anime-collection');
-const anime_bookmark_container = document.querySelector('#anime-bookmark-container')
+const anime_bookmark_container = document.querySelector('#anime-bookmark-container');
+const bookmark_icon = document.querySelector('#bookmark');
 
 let bookmarked_anime = JSON.parse(localStorage.getItem('bookmarked_anime')) || [];
 
@@ -205,6 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		render_bookmark_manager();
 	};
 
+	bookmark_icon.addEventListener('click',(e) => {
+		document.getElementById('bookmark-manager').style.display === "block" ? document.getElementById('bookmark-manager').style.display = "none" : document.getElementById('bookmark-manager').style.display = "block";
+	});
 
 	search_bar_button.addEventListener('click', (e) => {
 		let query = search_bar.value;
