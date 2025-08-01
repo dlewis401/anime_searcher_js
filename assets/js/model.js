@@ -4,6 +4,7 @@ import {fetchAnime} from './controller.js';
 import {page_numbers_container} from './view.js';
 import {search_bar} from './view.js';
 
+
 const state = {
 	"anime":{},
 };
@@ -92,4 +93,3 @@ export async function search(query) {
 		return "";
 	}
 }
-

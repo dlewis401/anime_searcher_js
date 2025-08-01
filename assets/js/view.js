@@ -5,6 +5,13 @@ import {gather_anime_data_for_display} from './model.js';
 import {gather_bookmark_data} from './model.js';
 import {search} from './model.js';
 import {fetch_anime_from_id} from './model.js';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+// Doesn't need to reload application
+if (module.hot) {
+	module.hot.accept();
+}
 
 const card = document.querySelector('#card-anime-collection');
 export const page_numbers_container = document.querySelector('#page-numbers');
@@ -17,13 +24,18 @@ const bookmark_icon = document.querySelector('#bookmark');
 
 let bookmarked_anime = JSON.parse(localStorage.getItem('bookmarked_anime')) || [];
 
+
+/**
+ * Fetches the anime using the hash given
+ * @param {int} hash 
+ * @returns Object of results of the anime
+ */
 async function fetch_anime_with_id(hash) {
 	const anime_from_hash = await fetch(`https://api.jikan.moe/v4/anime/${hash}/full`);
 	const anime_result = await anime_from_hash.json();
 	const anime_result_data = anime_result.data;
 	return anime_result_data
 }
-
 
 async function render_pagination(anime_list, page_num) {
 	card.innerHTML = ""

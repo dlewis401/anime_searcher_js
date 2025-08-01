@@ -1,6 +1,7 @@
 // Controller: the boss — reacts to events, updates the model, tells the view what to do.
 
 import * as config from './config.js';
+
 const bookmark_container = document.querySelector('#bookmark_container')
 
 export async function fetchAnime(search_term) {
@@ -18,4 +19,3 @@ export async function fetchAnime(search_term) {
 		throw new Error(`Error: ${fetch_error}`);
 	}
 };
-
